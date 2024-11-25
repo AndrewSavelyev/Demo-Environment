@@ -1,0 +1,4 @@
+private_ssh_key
+.terraform/
+.terraform
+kubectl*

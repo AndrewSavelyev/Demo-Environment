@@ -1,0 +1,3 @@
+environments/dev/private_ssh_key
+environments/dev/.terraform/
+environments/dev/kubectl*

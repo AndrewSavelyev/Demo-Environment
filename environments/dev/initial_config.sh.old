@@ -1,0 +1,10 @@
+#!/bin/bash 
+
+sudo apt-get update -y
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+result="$(echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check)"
+if $result == "kubectl: OK"; then
+    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl;kubectl version --client
+else
+    echo "Checksum did NOT match. Please try downloading the same version of the binary and check its checksum again."
+fi
