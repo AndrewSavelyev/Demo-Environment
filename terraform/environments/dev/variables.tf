@@ -12,7 +12,9 @@ variable "aws_vpc_cidr_block" {
 
 variable "ec2_ami" {
   type            = string
-  default         = "ami-0866a3c8686eaeeba" 
+#  default         = "ami-866a3c8686eaeeba" 
+#  default         = "ami-005fc0f236362e99f"
+   default         = "ami-0cde6390e61a03eee"   
   description     = "EC2 ami's image"
 }
 

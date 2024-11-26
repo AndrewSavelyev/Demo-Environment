@@ -1,0 +1,8 @@
+# Local .terraform directories
+terraform/environments/dev/.terraform/
+
+# Private key
+terraform/environments/dev/private_ssh_key
+
+# Data resource artifacts
+terraform/environments/dev/kubectl*

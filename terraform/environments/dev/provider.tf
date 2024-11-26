@@ -14,16 +14,16 @@ terraform {
     encrypt        = true
     key            = "state/terraform.tfstate"
     region         = "us-east-1"
-    access_key     = "AKIAX5ZI55F3HFOUAWRV"
-    secret_key     = "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"
+    access_key     = "AKIAX5ZI55F3IQW4NHXC,tDg"
+    secret_key     = "UgX+cLt27W1yqwopSqsJG5ZezIqCkz9FmhhB"
     dynamodb_table = "terraform-asavelyev-lock-table"
   }
 }
 
 provider "aws" {
   region  = "us-east-1"
-  access_key    = "AKIAX5ZI55F3HFOUAWRV"
-  secret_key    = "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"
+  access_key    = "AKIAX5ZI55F3IQW4NHXC,tDg"
+  secret_key    = "UgX+cLt27W1yqwopSqsJG5ZezIqCkz9FmhhB"
 }
 
 provider "kubernetes" {
