@@ -32,7 +32,7 @@ resource "aws_instance" "main" {
     ami            = var.ec2_ami
     instance_type  = var.ec2_instanse_type
     key_name       = aws_key_pair.main.key_name
-    user_data      = file("./initial_config.sh")
+    user_data      = file("scripts/initial_config.sh")
     
     network_interface {
       network_interface_id = aws_network_interface.main.id
