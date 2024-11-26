@@ -4,5 +4,5 @@ terraform/environments/dev/.terraform/*
 # Private key
 private_ssh_key
 
-
+# Data resource artifacts
 kubectl*
