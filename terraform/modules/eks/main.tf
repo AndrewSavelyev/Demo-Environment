@@ -103,7 +103,7 @@ resource "aws_eks_node_group" "private-nodes" {
   scaling_config {
     desired_size = 1
     max_size     = 5
-    min_size     = 0
+    min_size     = 1
   }
 
   update_config {
