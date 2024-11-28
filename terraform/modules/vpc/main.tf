@@ -43,6 +43,7 @@ resource "aws_eip" "nat" {
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat.id
   subnet_id     = var.public-us-east-1a_id
+#  connectivity_type = "private"
 
   tags = {
     Name = "nat"

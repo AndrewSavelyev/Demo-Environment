@@ -9,6 +9,8 @@
 crash.log
 crash.*.log
 
+# SSH key for Bastion host
+**/private_ssh_key
 # Exclude all .tfvars files, which are likely to contain sensitive data, such as
 # password, private keys, and other secrets. These should not be part of version 
 # control as they are data points which are potentially sensitive and subject 
@@ -36,7 +38,6 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-**/1
 # Local .terraform directories
 #terraform/environments/*/.terraform/
 

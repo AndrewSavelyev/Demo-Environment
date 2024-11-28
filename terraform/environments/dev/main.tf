@@ -13,6 +13,7 @@ module "vpc" {
 module "network" { 
   source = "../../modules/network"
   bastion_cidr_block              = "10.0.10.0/24"
+  
 #  cidr_block              = module.vpc.aws_vpc_cidr_block
   vpc_id                  = module.vpc.aws_vpc_id
   availability_zone       = var.region
