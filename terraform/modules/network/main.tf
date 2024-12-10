@@ -1,103 +1,117 @@
-# VPC Subnet for Bastion
-resource "aws_subnet" "main" {
-  vpc_id            = var.vpc_id
-  cidr_block        = var.bastion_cidr_block
-    
-  tags          = {
-    Name        = "Main"
+
+# To meet Amazon EKS networking requirements we need to create at least two subnets that are in different Availability Zones
+# Private subnets
+resource "aws_subnet" "private" {
+  count                               = length(var.availability_zones)
+  vpc_id                              = var.vpc_id
+  cidr_block                          = element(var.private_cidrs, count.index)  
+  availability_zone                   = element(var.availability_zones, count.index)
+  map_public_ip_on_launch             = false
+  tags                                = {
+    "Name"                            = "private-${count.index}"
+    "kubernetes.io/role/internal-elb" = "1"
+    "kubernetes.io/cluster/demo"      = "owned"
   }
 }
 
+# Public subnets (for Bastion and Load balancer)
+resource "aws_subnet" "public" {
+  count                          = length(var.availability_zones)
+  vpc_id                         = var.vpc_id  
+  cidr_block                     = element(var.public_cidrs, count.index)  
+  availability_zone              = element(var.availability_zones, count.index)
+  map_public_ip_on_launch        = true
+  tags                           = {
+    "Name"                       = "public-${count.index}"
+    "kubernetes.io/role/elb"     = "1"
+    "kubernetes.io/cluster/demo" = "owned"
+  }
+}
+
+# Internet gateway for public subnets
+resource "aws_internet_gateway" "igw" {
+  vpc_id         = var.vpc_id
+}
+
+resource "aws_route_table" "public" {
+  vpc_id         = var.vpc_id
+  route {
+      cidr_block = "0.0.0.0/0"
+      gateway_id = aws_internet_gateway.igw.id    
+  }  
+  tags           = {
+    Name         = "public"
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  count          = length(var.availability_zones)
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
+}
+
+# EIP for NAT gateway
+resource "aws_eip" "nat" {
+  domain = "vpc"
+  tags   = {
+    Name = "nat"
+  }
+}
+
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public[0].id
+  tags          = {
+    Name        = "nat"
+  }
+}
+
+resource "aws_default_route_table" "private" {
+  default_route_table_id = var.default_route_table_id
+  route {
+    cidr_block           = "0.0.0.0/0"
+    gateway_id           = aws_nat_gateway.nat.id
+  }
+  tags                   = {
+    Name                 = "private"
+  }
+}
+
+# Association of Route table's with subnet's
+resource "aws_route_table_association" "private" {
+  count          = length(var.availability_zones)
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_default_route_table.private.id
+}
+
 # Security Group parameters
-resource "aws_default_security_group" "main" {
-   vpc_id           = aws_subnet.main.vpc_id
+resource "aws_default_security_group" "allow_ssh" {
+   vpc_id           = var.vpc_id
   ingress {
     from_port       = "22"
     to_port         = "22"
     protocol        = "tcp"
     cidr_blocks     = ["0.0.0.0/0"]
   }
-
   egress {
-    from_port    = 0
-    to_port      = 0
-    protocol     = "-1"
-    cidr_blocks  = ["0.0.0.0/0"]
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
   }
-
   tags              = {
     Name            = "allow_ssh"
   }
 }
 
-########################################################
-# Setup EKS environment
-########################################################
-
-# To meet Amazon EKS networking requirements we need to create at least two subnets that are in different Availability Zones
-# First private subnet
-resource "aws_subnet" "private-us-east-1a" {
-  vpc_id            = var.vpc_id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a"
-  map_public_ip_on_launch = false
-
-  tags = {
-    "Name"                            = "private-us-east-1a"
-    "kubernetes.io/role/internal-elb" = "1"
-    "kubernetes.io/cluster/demo"      = "owned"
-  }
-}
-
-# Second private subnet
-resource "aws_subnet" "private-us-east-1b" {
-  vpc_id            = var.vpc_id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-east-1b"
-  map_public_ip_on_launch = false
-
-  tags = {
-    "Name"                            = "private-us-east-1b"
-    "kubernetes.io/role/internal-elb" = "1"
-    "kubernetes.io/cluster/demo"      = "owned"
-  }
-}
-
-# First pulic subnet (for load balancer)
-resource "aws_subnet" "public-us-east-1a" {
-  vpc_id                  = var.vpc_id
-  cidr_block              = "10.0.3.0/24"
-  availability_zone       = "us-east-1a"
-  map_public_ip_on_launch = true
-
-  tags = {
-    "Name"                       = "public-us-east-1a"
-    "kubernetes.io/role/elb"     = "1"
-    "kubernetes.io/cluster/demo" = "owned"
-  }
-}
-
-# Second pulic subnet (for load balancer)
-resource "aws_subnet" "public-us-east-1b" {
-  vpc_id                  = var.vpc_id
-  cidr_block              = "10.0.4.0/24"
-  availability_zone       = "us-east-1b"
-  map_public_ip_on_launch = true
-
-  tags = {
-    "Name"                       = "public-us-east-1b"
-    "kubernetes.io/role/elb"     = "1"
-    "kubernetes.io/cluster/demo" = "owned"
-  }
-}
 
 #####################################################################
 # Security Groups for clusters's subnets                           ##
 #####################################################################
-# First subnet private-us-east-1a
+# Private subnets
 
-resource "aws_security_group" "allow_pf_private-us-east-1a" {
-  name        = "allow_port_forwarding_for_private-us-east-1a"
+resource "aws_security_group" "allow_pf_private-subnets" {
+  name        = "allow_port_forwarding_for_private-subnets"
   description = "Allow port forwarding inside and outside containers"
   vpc_id      = var.vpc_id
 
@@ -106,95 +120,45 @@ resource "aws_security_group" "allow_pf_private-us-east-1a" {
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "allow_pf_private-us-east-1a" {
-  security_group_id = aws_security_group.allow_pf_private-us-east-1a.id
-  cidr_ipv4         = aws_subnet.private-us-east-1a.cidr_block
+resource "aws_vpc_security_group_ingress_rule" "allow_pf_private-subnets" {
+  count             = length(var.availability_zones)
+  security_group_id = aws_security_group.allow_pf_private-subnets.id
+  cidr_ipv4         = element(var.private_cidrs, count.index)
   from_port         = 80
   ip_protocol       = "tcp"
   to_port           = 80
 }
 
-resource "aws_vpc_security_group_egress_rule" "allow_pf_private-us-east-1a" {
-  security_group_id = aws_security_group.allow_pf_private-us-east-1a.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
-}
-
-# Second subnet private-us-east-1b
-
-resource "aws_security_group" "private-us-east-1b" {
-  name        = "allow_port_forwarding_private-us-east-1b"
-  description = "Allow port forwarding inside and outside containers"
-  vpc_id      = var.vpc_id
-
-  tags = {
-    Name = "allow_port_forwarding"
-  }
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_pf_private-us-east-1b" {
-  security_group_id = aws_security_group.private-us-east-1b.id
-  cidr_ipv4         = aws_subnet.private-us-east-1b.cidr_block
-  from_port         = 80
-  ip_protocol       = "tcp"
-  to_port           = 80
-}
-
-resource "aws_vpc_security_group_egress_rule" "allow_pf_private-us-east-1b" {
-  security_group_id = aws_security_group.private-us-east-1b.id
+resource "aws_vpc_security_group_egress_rule" "allow_pf_private-subnets" {
+  security_group_id = aws_security_group.allow_pf_private-subnets.id
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
 ###############################################################################
-# First subnet public-us-east-1a
+# Public subnets
 
-resource "aws_security_group" "allow_pf_public-us-east-1a" {
-  name        = "allow_port_forwarding_for_public-us-east-1a"
+resource "aws_security_group" "allow_pf_public-subnets" {
+  name        = "allow_port_forwarding_for_public-subnets"
   description = "Allow port forwarding inside and outside containers"
   vpc_id      = var.vpc_id
-
-  tags = {
-    Name = "allow_port_forwarding"
+  tags        = {
+    Name      = "allow_port_forwarding"
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "allow_pf_public-us-east-1a" {
-  security_group_id = aws_security_group.allow_pf_public-us-east-1a.id
-  cidr_ipv4         = aws_subnet.public-us-east-1a.cidr_block
+resource "aws_vpc_security_group_ingress_rule" "allow_pf_public-subnets" {
+  count             = length(var.availability_zones)
+  security_group_id = aws_security_group.allow_pf_public-subnets.id
+  cidr_ipv4         = element(var.public_cidrs, count.index)
   from_port         = 80
   ip_protocol       = "tcp"
   to_port           = 80
 }
 
-resource "aws_vpc_security_group_egress_rule" "allow_pf_public-us-east-1a" {
-  security_group_id = aws_security_group.allow_pf_public-us-east-1a.id
+resource "aws_vpc_security_group_egress_rule" "allow_pf_public-subnets" {
+  security_group_id = aws_security_group.allow_pf_public-subnets.id
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
-# Second subnet private-us-east-1b
-
-resource "aws_security_group" "public-us-east-1b" {
-  name        = "allow_port_forwarding_public-us-east-1b"
-  description = "Allow port forwarding inside and outside containers"
-  vpc_id      = var.vpc_id
-
-  tags = {
-    Name = "allow_port_forwarding"
-  }
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_pf_public-us-east-1b" {
-  security_group_id = aws_security_group.public-us-east-1b.id
-  cidr_ipv4         = aws_subnet.public-us-east-1b.cidr_block
-  from_port         = 80
-  ip_protocol       = "tcp"
-  to_port           = 80
-}
-
-resource "aws_vpc_security_group_egress_rule" "allow_pf_public-us-east-1b" {
-  security_group_id = aws_security_group.public-us-east-1b.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
-}

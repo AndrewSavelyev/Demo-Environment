@@ -1,8 +1,7 @@
 # IAM role with the AmazonEKSClusterPolicy
 # First- we provides an IAM role
 resource "aws_iam_role" "demo" {
-  name = "eks-cluster-demo"
-
+  name = "${var.name}-cluster_iam_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -12,10 +11,9 @@ resource "aws_iam_role" "demo" {
         Principal = {
           Service = "eks.amazonaws.com"
         }
-      },
+      }
     ]
   })
-
   tags = {
     tag-key = "EKS claster demo access"
   }
@@ -27,46 +25,28 @@ resource "aws_iam_role_policy_attachment" "demo-AmazonEKSClusterPolicy" {
   role       = aws_iam_role.demo.name
 }
 
-
 # And now- we creating the EKS cluster itself
 resource "aws_eks_cluster" "demo" {
-  name     = "demo"
+  name     = "${var.name}-cluster"
   role_arn = aws_iam_role.demo.arn
-
   vpc_config {
-    subnet_ids = [
-      var.private-us-east-1a_id,
-      var.private-us-east-1b_id,
-      var.public-us-east-1a_id,
-      var.public-us-east-1b_id
-    ]
+    subnet_ids = concat(var.private-ids,var.public-ids)    
   }
-
   depends_on = [aws_iam_role_policy_attachment.demo-AmazonEKSClusterPolicy]
 }
-/*
-#Access Entry Configurations for demo cluster
-resource "aws_eks_access_entry" "demo" {
-  cluster_name      = aws_eks_cluster.demo.name
-  principal_arn     = aws_iam_role.demo.arn
-  type              = "STANDARD"
-  user_name         = "terraform"  
-}
-*/
 
 # Next, we are going to create IAM role for a single instance group for Kubernetes
 resource "aws_iam_role" "nodes" {
-  name = "eks-node-group-nodes"
-
+  name               = "${var.name}-nodes-group-role"
   assume_role_policy = jsonencode({
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ec2.amazonaws.com"
+    Statement        = [{
+      Action         = "sts:AssumeRole"
+      Effect         = "Allow"
+      Principal      = {
+        Service      = "ec2.amazonaws.com"
       }
     }]
-    Version = "2012-10-17"
+    Version          = "2012-10-17"
   })
 }
 
@@ -88,33 +68,24 @@ resource "aws_iam_role_policy_attachment" "nodes-AmazonEC2ContainerRegistryReadO
 
 # Now are creating single instance group for EKS
 resource "aws_eks_node_group" "private-nodes" {
-  cluster_name    = aws_eks_cluster.demo.name
-  node_group_name = "private-nodes"
-  node_role_arn   = aws_iam_role.nodes.arn
-
-  subnet_ids = [
-    var.private-us-east-1a_id,
-    var.private-us-east-1b_id
-  ]
-
-  capacity_type  = "ON_DEMAND"
-  instance_types = ["t3.small"]
-
+  cluster_name      = aws_eks_cluster.demo.name
+  node_group_name   = "${var.name}-private-nodes"
+  node_role_arn     = aws_iam_role.nodes.arn
+  subnet_ids = var.private-ids
+  capacity_type     = "ON_DEMAND"
+  instance_types    = ["t3.small"]
   scaling_config {
-    desired_size = 1
-    max_size     = 5
-    min_size     = 1
+    desired_size    = 1
+    max_size        = 5
+    min_size        = 1
   }
-
   update_config {
     max_unavailable = 1
   }
-
-  labels = {
-    role = "general"
+  labels            = {
+    role            = "general"
   }
-
-  depends_on = [
+  depends_on        = [
     aws_iam_role_policy_attachment.nodes-AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.nodes-AmazonEKS_CNI_Policy,
     aws_iam_role_policy_attachment.nodes-AmazonEC2ContainerRegistryReadOnly,

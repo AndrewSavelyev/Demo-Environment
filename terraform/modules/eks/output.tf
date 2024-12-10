@@ -1,4 +1,4 @@
-output "aws_eks_cluster_demo" {
-  value             = aws_eks_cluster.demo
-  description       = "EKS info"
+output "cluster_demo_name" {
+  value       = aws_eks_cluster.demo.name
+  description = "EKS info"
 }

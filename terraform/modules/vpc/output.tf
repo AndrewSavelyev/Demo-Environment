@@ -1,7 +1,6 @@
-output "aws_vpc_cidr_block" {
+output "vpc_cidr" {
     value           = aws_vpc.main.cidr_block    
     description     = "Output of the CIDR block for VPC"
-
 }
 
 output "aws_vpc_id" {
@@ -9,13 +8,7 @@ output "aws_vpc_id" {
     description     = "Output of the Id for VPC"
 }
 
-output "aws_igw_id" {
-    value           = aws_internet_gateway.igw.id    
-    description     = "VPC's gateway"
+output "default_route_table_id" {
+    value           = aws_vpc.main.default_route_table_id    
+    description     = "VPC's default route table id"
 }
-
-output "aws_route_table_public_id" {
-    value           = aws_default_route_table.main.id
-    description     = "Public route table's id, which is default route table"
-}
-

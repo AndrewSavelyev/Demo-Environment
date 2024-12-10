@@ -4,69 +4,35 @@ variable "vpc_id" {
   description = "VPC id"
 }
 
-variable "bastion_cidr_block" {
-  type    = string
-  default = ""  
-  description = "VPC's CIDR block"
+variable "availability_zones" {
+  type    = list(string)
+  description = "Network's availability zone"
 }
 
-variable "availability_zone" {
+variable "default_route_table_id" {
   type    = string
   default = ""  
-  description = "VPC's availability zone"
+  description = "VPC's defaultroute table id"
 }
 
-variable "aws_security_group" {
+variable "vpc_cidr" {
   type    = string
   default = ""  
-  description = "Security Group's name"
+  description = "VPC cidr"
 }
 
-variable "sg_cidr_block" {
-  type    = string
-  default = ""  
-  description = "Security Group's CIDR Block"
+variable "private_cidrs" {
+  type    = list(string)
+  description = "Private networks cidr"
 }
 
-variable "sg_ingress_from_port" {
-  type    = string
-  default = ""  
-  description = "Security Group Ingress from port"
+variable "public_cidrs" {
+  type    = list(string)
+  description = "Public networks cidr"
 }
 
-variable "sg_ingress_to_port" {
-  type    = string
-  default = ""  
-  description = "Security Group Ingress to port"
-}
 
-variable "sg_ingress_protocol" {
-  type    = string
-  default = ""  
-  description = "Security Group Ingress protocol"
-}
-
-variable "sg_egress_from_port" {
-  type    = string
-  default = ""  
-  description = "Security Group Egress from port"
-}
-
-variable "sg_egress_to_port" {
-  type    = string
-  default = ""  
-  description = "Security Group Egress to port"
-}
-
-variable "sg_egress_protocol" {
-  type    = string
-  default = ""  
-  description = "Security Group Egress protocol"
-}
-
-variable "rt_cidr_block" {
-  type    = string
-  default = ""  
-  description = "Route table CIDR block"
-}
-
+  
+  
+  
+  

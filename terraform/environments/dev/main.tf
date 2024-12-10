@@ -1,42 +1,76 @@
 # Module VPC parameters definition
 module "vpc" {  
-  source                          = "../../modules/vpc"
-  aws_vpc_cidr_block              = var.aws_vpc_cidr_block
-  aws_instance_id                 = module.ec2.aws_instance_id
-  private-us-east-1a_id           = module.network.private-us-east-1a_id
-  private-us-east-1b_id           = module.network.private-us-east-1b_id
-  public-us-east-1a_id            = module.network.public-us-east-1a_id
-  public-us-east-1b_id            = module.network.public-us-east-1b_id 
+  source = "../../modules/vpc"
+  vpc_cidr              = "10.0.0.0/16"    
 }
 
 # Module Network parameters definition
 module "network" { 
   source = "../../modules/network"
-  bastion_cidr_block              = "10.0.10.0/24"
+  private_cidrs        = [
+                         "10.0.1.0/24",
+                         "10.0.2.0/24",
+                         "10.0.3.0/24",
+                         "10.0.4.0/24",
+                         "10.0.0.0/24"
+                         ]
+  public_cidrs         = [
+                          "10.0.5.0/24",
+                          "10.0.6.0/24",
+                          "10.0.7.0/24",
+                          "10.0.8.0/24",
+                          "10.0.9.0/24"
+                        ]
+  availability_zones  = [
+                         "us-east-1a", 
+                         "us-east-1b", 
+                         "us-east-1c", 
+                         "us-east-1d", 
+                         "us-east-1e"
+                         ]    
+
+  vpc_id                 = module.vpc.aws_vpc_id
+  vpc_cidr               = module.vpc.vpc_cidr
+  default_route_table_id = module.vpc.default_route_table_id
   
-#  cidr_block              = module.vpc.aws_vpc_cidr_block
-  vpc_id                  = module.vpc.aws_vpc_id
-  availability_zone       = var.region
-  aws_security_group      = var.aws_security_group  
 }
 
 # Module EC2
 module "ec2" {
   source = "../../modules/ec2"
-  ec2_ami = var.ec2_ami
+  ec2_ami                     = var.ec2_ami
   ec2_instanse_type           = var.ec2_instanse_type
-  ec2_tag                     = var.ec2_tag
-  key_name                    = module.ec2.ec2_private_key_name
+  ec2_tag                     = "Bastion"
   key_pair_name               = "asavelyev"
-  ec2_private_ips             = ["10.0.10.10"]
-  aws_instance_main_subnet_id = module.network.aws_subnet_main_id  
+  ec2_private_ips             = ["10.0.9.10"]
+  aws_instance_main_subnet_id = module.network.public_ids[4]
 }
 
-# Module EKS
-module "eks" {
+# Module EKS1
+module "eks1" {
   source = "../../modules/eks"
-  private-us-east-1a_id           = module.network.private-us-east-1a_id
-  private-us-east-1b_id           = module.network.private-us-east-1b_id
-  public-us-east-1a_id            = module.network.public-us-east-1a_id
-  public-us-east-1b_id            = module.network.public-us-east-1b_id
+    
+  private-ids                    = [
+                                     module.network.private_ids[0], 
+                                     module.network.private_ids[1]                                     
+                                   ]
+  public-ids                     = [
+                                     module.network.public_ids[0], 
+                                     module.network.public_ids[1]
+                                   ]
+  name = "eks1"                                     
+}
+# Module EKS2
+module "eks2" {
+  source = "../../modules/eks"
+    
+  private-ids                    = [
+                                     module.network.private_ids[2], 
+                                     module.network.private_ids[3]
+                                   ]
+  public-ids                     = [                                     
+                                     module.network.public_ids[2], 
+                                     module.network.public_ids[3]
+                                   ]
+  name = "eks2"                                     
 }

@@ -1,23 +1,15 @@
-variable "private-us-east-1a_id" {
+variable "name" {
   type        = string
   default     = "" 
-  description = "Private subnet's id in AZ s-east-1a"
+  description = "Cluster's name"
 }
 
-variable "private-us-east-1b_id" {
-  type        = string
-  default     = "" 
-  description = "Private subnet's id in AZ s-east-1b"
+variable "private-ids" {
+  type        = list(string)
+  description = "Private subnets id's"
 }
 
-variable "public-us-east-1a_id" {
-  type        = string
-  default     = "" 
-  description = "Public subnet's id in AZ s-east-1a"
-}
-
-variable "public-us-east-1b_id" {
-  type        = string
-  default     = "" 
-  description = "Public subnet's id in AZ s-east-1b"
+variable "public-ids" {
+  type        = list(string)
+  description = "Public-ids subnets id's"
 }

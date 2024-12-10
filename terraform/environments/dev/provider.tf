@@ -9,21 +9,17 @@ terraform {
   }
 
   # Configuring the S3 backend, tfstate file location and dynamodb table for locking
-  backend "s3" {
-    bucket         = "asavbacket"
+  backend "s3" {    
     encrypt        = true
-    key            = "state/terraform.tfstate"
-    region         = "us-east-1"
-    access_key     = "AKIAX5ZI55F3KFNU5B6E"
-    secret_key     = "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"
-    dynamodb_table = "terraform-asavelyev-lock-table"
+    bucket         = "asbacket"
+    key            = "state/terraform.tfstate"   
+    dynamodb_table = "terraform-as-lock-table"
+    region         = "us-east-1"          
   }
 }
 
 provider "aws" {
-  region  = "us-east-1"
-  access_key    = "AKIAX5ZI55F3KFNU5B6E"
-  secret_key    = "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"
+  region         = "us-east-1" 
 }
 
 provider "kubernetes" {
