@@ -103,8 +103,6 @@ resource "aws_default_security_group" "allow_ssh" {
     Name            = "allow_ssh"
   }
 }
-
-
 #####################################################################
 # Security Groups for clusters's subnets                           ##
 #####################################################################
@@ -124,9 +122,9 @@ resource "aws_vpc_security_group_ingress_rule" "allow_pf_private-subnets" {
   count             = length(var.availability_zones)
   security_group_id = aws_security_group.allow_pf_private-subnets.id
   cidr_ipv4         = element(var.private_cidrs, count.index)
-  from_port         = 80
+  from_port         = 31000
   ip_protocol       = "tcp"
-  to_port           = 80
+  to_port           = 31000
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_pf_private-subnets" {
@@ -151,9 +149,9 @@ resource "aws_vpc_security_group_ingress_rule" "allow_pf_public-subnets" {
   count             = length(var.availability_zones)
   security_group_id = aws_security_group.allow_pf_public-subnets.id
   cidr_ipv4         = element(var.public_cidrs, count.index)
-  from_port         = 80
+  from_port         = 31000
   ip_protocol       = "tcp"
-  to_port           = 80
+  to_port           = 31000
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_pf_public-subnets" {

@@ -32,7 +32,6 @@ module "network" {
   vpc_id                 = module.vpc.aws_vpc_id
   vpc_cidr               = module.vpc.vpc_cidr
   default_route_table_id = module.vpc.default_route_table_id
-  
 }
 
 # Module EC2
@@ -58,6 +57,7 @@ module "eks1" {
                                      module.network.public_ids[0], 
                                      module.network.public_ids[1]
                                    ]
+  vpc_id                         = module.vpc.aws_vpc_id                                   
   name = "eks1"                                     
 }
 # Module EKS2
@@ -72,5 +72,6 @@ module "eks2" {
                                      module.network.public_ids[2], 
                                      module.network.public_ids[3]
                                    ]
+  vpc_id                         = module.vpc.aws_vpc_id
   name = "eks2"                                     
 }

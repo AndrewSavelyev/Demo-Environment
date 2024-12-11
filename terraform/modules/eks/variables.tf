@@ -13,3 +13,9 @@ variable "public-ids" {
   type        = list(string)
   description = "Public-ids subnets id's"
 }
+
+variable "vpc_id" {
+  type    = string
+  default = ""  
+  description = "VPC id"
+}
