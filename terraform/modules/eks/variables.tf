@@ -14,6 +14,18 @@ variable "public-ids" {
   description = "Public-ids subnets id's"
 }
 
+variable "desired_size" {
+  type    = number
+  default = 1  
+  description = "EKS pods desired quontity"
+}
+
+variable "min_size" {
+  type    = number
+  default = 1  
+  description = "EKS pods minimal quontity"
+}    
+
 variable "vpc_id" {
   type    = string
   default = ""  
