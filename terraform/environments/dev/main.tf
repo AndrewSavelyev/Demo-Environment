@@ -58,6 +58,8 @@ module "eks1" {
                                      module.network.public_ids[0], 
                                      module.network.public_ids[1]
                                    ]
+  desired_size                   = 1
+  min_size                       = 1
   name = "eks1"                                     
 }
 # Module EKS2
@@ -72,5 +74,7 @@ module "eks2" {
                                      module.network.public_ids[2], 
                                      module.network.public_ids[3]
                                    ]
+  desired_size                   = 2
+  min_size                       = 1
   name = "eks2"                                     
 }
