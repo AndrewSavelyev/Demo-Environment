@@ -57,11 +57,17 @@ module "eks1" {
                                      module.network.public_ids[0], 
                                      module.network.public_ids[1]
                                    ]
+<<<<<<< HEAD
   vpc_id                         = module.vpc.aws_vpc_id                                   
   name = "eks1"
   desired_size                   = 1    
   min_size                       = 1
                                        
+=======
+  desired_size                   = 1
+  min_size                       = 1
+  name = "eks1"                                     
+>>>>>>> temp
 }
 # Module EKS2
 module "eks2" {
@@ -75,8 +81,14 @@ module "eks2" {
                                      module.network.public_ids[2], 
                                      module.network.public_ids[3]
                                    ]
+<<<<<<< HEAD
   vpc_id                         = module.vpc.aws_vpc_id
   name = "eks2"
   desired_size                   = 2    
   min_size                       = 1                  
+=======
+  desired_size                   = 2
+  min_size                       = 1
+  name = "eks2"                                     
+>>>>>>> temp
 }
