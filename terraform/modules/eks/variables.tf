@@ -15,10 +15,15 @@ variable "public-ids" {
 }
 
 variable "desired_size" {
-<<<<<<< HEAD
   type    = number
   default = 1  
   description = "EKS pods desired quontity"
+}
+
+variable "max_size" {
+  type    = number
+  default = 5  
+  description = "EKS pods maximum quontity"
 }
 
 variable "min_size" {
@@ -32,13 +37,3 @@ variable "vpc_id" {
   default = ""  
   description = "VPC id"
 }
-=======
-  type        = number
-  description = "EKS nodes desired quontity"
-}
-
-variable "min_size" {
-  type        = number
-  description = "EKS nodes minimal quontity"
-}
->>>>>>> temp

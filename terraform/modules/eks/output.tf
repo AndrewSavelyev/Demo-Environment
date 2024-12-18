@@ -11,7 +11,3 @@ output "kubeconfig-certificate-authority-data" {
     value = aws_eks_cluster.demo.certificate_authority[0].data
 }
 
-output "security_group_demo_id" {
-    value       = aws_security_group.demo.id
-    description = "Public subnets"
-}
