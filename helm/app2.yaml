@@ -1,0 +1,46 @@
+# This is to override the chart name.
+fullnameOverride: "app2"
+
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service>  
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field>  
+  port: 80
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: 
+    kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: www.example.com
+      paths:
+        - path: /app2
+          pathType: Prefix
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# Additional volumes on the output Deployment definition.
+volumes:
+  - name: nginx1
+    configMap:
+      name: nginx1
+  - name: nginx2
+    configMap:
+      name: nginx2
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts:
+  - name: nginx1
+    mountPath: "/usr/share/nginx/html/"
+  - name: nginx2
+    mountPath: "/usr/share/nginx/html/app2"

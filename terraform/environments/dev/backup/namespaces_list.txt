@@ -1,0 +1,9 @@
+NAME              STATUS   AGE
+applications      Active   2d7h
+default           Active   7d7h
+ingress-nginx     Active   6d13h
+jenkins           Active   10h
+kube-node-lease   Active   7d7h
+kube-public       Active   7d7h
+kube-system       Active   7d7h
+monitoring        Active   5d11h

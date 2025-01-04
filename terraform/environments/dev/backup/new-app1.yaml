@@ -1,0 +1,55 @@
+# This is to override the chart name.
+fullnameOverride: "app1"
+
+replicaCount: 2
+
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-network>  
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ser>  
+  port: 80
+
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: www.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tas>livenessProbe:
+  httpGet:
+    path: /
+    port: http
+#    path: "/healthz"
+#    port: 56791
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# Additional volumes on the output Deployment definition.
+volumes:
+  - name: nginx1
+    configMap:
+      name: nginx1
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts:
+  - name: nginx1
+    mountPath: /usr/share/nginx/html/
+
+affinity:
+  nodeAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+           - key: kubernetes.io/hostname  # Це назва лейби на воркер ноді, значення потрібно змінити
+             operator: In
+             values:
+             - ip-10-0-1-24.ec2.internal # Це значення лейби воркер ноди назву якої ти додав вище

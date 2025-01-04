@@ -10,7 +10,7 @@ resource "aws_subnet" "private" {
   tags                                = {
     "Name"                            = "private-${count.index}"
     "kubernetes.io/role/internal-elb" = "1"
-    "kubernetes.io/cluster/demo"      = "owned"
+    "kubernetes.io/cluster/${var.name}-cluster"      = "owned"
   }
 }
 
@@ -24,7 +24,7 @@ resource "aws_subnet" "public" {
   tags                           = {
     "Name"                       = "public-${count.index}"
     "kubernetes.io/role/elb"     = "1"
-    "kubernetes.io/cluster/demo" = "owned"
+    "kubernetes.io/cluster/${var.name}-cluster" = "owned"
   }
 }
 
@@ -103,62 +103,3 @@ resource "aws_default_security_group" "allow_ssh" {
     Name            = "allow_ssh"
   }
 }
-
-
-#####################################################################
-# Security Groups for clusters's subnets                           ##
-#####################################################################
-# Private subnets
-
-resource "aws_security_group" "allow_pf_private-subnets" {
-  name        = "allow_port_forwarding_for_private-subnets"
-  description = "Allow port forwarding inside and outside containers"
-  vpc_id      = var.vpc_id
-
-  tags = {
-    Name = "allow_port_forwarding"
-  }
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_pf_private-subnets" {
-  count             = length(var.availability_zones)
-  security_group_id = aws_security_group.allow_pf_private-subnets.id
-  cidr_ipv4         = element(var.private_cidrs, count.index)
-  from_port         = 80
-  ip_protocol       = "tcp"
-  to_port           = 80
-}
-
-resource "aws_vpc_security_group_egress_rule" "allow_pf_private-subnets" {
-  security_group_id = aws_security_group.allow_pf_private-subnets.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
-}
-
-###############################################################################
-# Public subnets
-
-resource "aws_security_group" "allow_pf_public-subnets" {
-  name        = "allow_port_forwarding_for_public-subnets"
-  description = "Allow port forwarding inside and outside containers"
-  vpc_id      = var.vpc_id
-  tags        = {
-    Name      = "allow_port_forwarding"
-  }
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_pf_public-subnets" {
-  count             = length(var.availability_zones)
-  security_group_id = aws_security_group.allow_pf_public-subnets.id
-  cidr_ipv4         = element(var.public_cidrs, count.index)
-  from_port         = 80
-  ip_protocol       = "tcp"
-  to_port           = 80
-}
-
-resource "aws_vpc_security_group_egress_rule" "allow_pf_public-subnets" {
-  security_group_id = aws_security_group.allow_pf_public-subnets.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
-}
-

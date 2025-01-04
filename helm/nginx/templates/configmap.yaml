@@ -1,0 +1,16 @@
+{{- if .Values.volumes -}}
+{{- range $vol := $.Values.volumes }}
+apiVersion: v1
+data:
+  index.html: |
+    <html>
+    <h1>Andrew Savelyev</h1>
+    <body>
+    This is My Nginx Server with name {{ .name | quote }}
+    </body>
+    </html>
+kind: ConfigMap
+metadata:
+  name: {{ .name }}
+{{- end }}
+{{- end }}

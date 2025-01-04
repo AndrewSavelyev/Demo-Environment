@@ -31,6 +31,12 @@ variable "public_cidrs" {
   description = "Public networks cidr"
 }
 
+variable "name" {
+  type        = string
+  default     = "" 
+  description = "Cluster's name"
+}
+
 
   
   
