@@ -59,8 +59,8 @@ module "eks1" {
                                      module.network.public_ids[1]
                                    ]
   name = "eks1"
-  min_size                        = 3
-  desired_size                    = 3
+  min_size                        = 2
+  desired_size                    = 2
 
 }
 /*
