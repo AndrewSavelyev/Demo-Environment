@@ -13,3 +13,13 @@ variable "public-ids" {
   type        = list(string)
   description = "Public-ids subnets id's"
 }
+
+variable "desired_size" {
+  type        = number
+  description = "Cluster nodes desired_size"
+}
+
+variable "min_size" {
+  type        = number
+  description = "Cluster nodes minimum_size"
+}

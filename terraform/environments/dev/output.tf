@@ -7,8 +7,9 @@ output "eks1_cluster_name" {
     value                   = module.eks1.cluster_demo_name
     description             = "EKS cluster data"
 }
-
+/*
 output "eks2_cluster_name" {
     value                   = module.eks2.cluster_demo_name
     description             = "EKS cluster data"
 }
+*/

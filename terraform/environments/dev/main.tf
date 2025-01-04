@@ -1,3 +1,4 @@
+
 # Module VPC parameters definition
 module "vpc" {  
   source = "../../modules/vpc"
@@ -27,12 +28,11 @@ module "network" {
                          "us-east-1c", 
                          "us-east-1d", 
                          "us-east-1e"
-                         ]    
-
+                         ]
   vpc_id                 = module.vpc.aws_vpc_id
   vpc_cidr               = module.vpc.vpc_cidr
   default_route_table_id = module.vpc.default_route_table_id
-  
+  name = "eks1"  
 }
 
 # Module EC2
@@ -58,8 +58,12 @@ module "eks1" {
                                      module.network.public_ids[0], 
                                      module.network.public_ids[1]
                                    ]
-  name = "eks1"                                     
+  name = "eks1"
+  min_size                        = 3
+  desired_size                    = 3
+
 }
+/*
 # Module EKS2
 module "eks2" {
   source = "../../modules/eks"
@@ -74,3 +78,4 @@ module "eks2" {
                                    ]
   name = "eks2"                                     
 }
+*/

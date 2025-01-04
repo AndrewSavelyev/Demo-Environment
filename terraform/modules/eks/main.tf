@@ -27,7 +27,7 @@ resource "aws_iam_role_policy_attachment" "demo-AmazonEKSClusterPolicy" {
 
 # And now- we creating the EKS cluster itself
 resource "aws_eks_cluster" "demo" {
-  name     = "${var.name}-cluster"
+  name     = "${var.name}"
   role_arn = aws_iam_role.demo.arn
   vpc_config {
     subnet_ids = concat(var.private-ids,var.public-ids)    
@@ -75,9 +75,9 @@ resource "aws_eks_node_group" "private-nodes" {
   capacity_type     = "ON_DEMAND"
   instance_types    = ["t3.small"]
   scaling_config {
-    desired_size    = 1
+    desired_size    = var.desired_size
     max_size        = 5
-    min_size        = 1
+    min_size        = var.min_size
   }
   update_config {
     max_unavailable = 1
