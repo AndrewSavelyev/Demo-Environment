@@ -24,7 +24,7 @@ resource "aws_iam_role_policy_attachment" "demo-AmazonEKSClusterPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.demo.name
 }
-
+/*
 # And now- we creating the EKS cluster itself
 resource "aws_eks_cluster" "demo" {
   name     = "${var.name}"
@@ -34,6 +34,27 @@ resource "aws_eks_cluster" "demo" {
   }
   depends_on = [aws_iam_role_policy_attachment.demo-AmazonEKSClusterPolicy]
 }
+*/
+#################################################################################################################
+# And now- we creating the EKS cluster itself
+resource "aws_eks_cluster" "demo" {
+  name     = "${var.name}-cluster"
+  access_config {
+    authentication_mode = "API_AND_CONFIG_MAP"
+    bootstrap_cluster_creator_admin_permissions = true
+  }
+  role_arn = aws_iam_role.demo.arn
+
+  vpc_config {
+    endpoint_private_access = false
+    endpoint_public_access  = true
+
+    subnet_ids = concat(var.private-ids,var.public-ids)    
+  }
+
+  depends_on = [aws_iam_role_policy_attachment.demo-AmazonEKSClusterPolicy]
+}
+#################################################################################################################
 
 # Next, we are going to create IAM role for a single instance group for Kubernetes
 resource "aws_iam_role" "nodes" {
