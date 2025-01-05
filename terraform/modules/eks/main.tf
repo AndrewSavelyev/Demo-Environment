@@ -36,7 +36,8 @@ resource "aws_eks_cluster" "demo" {
 }
 */
 #################################################################################################################
-# And now- we creating the EKS cluster itself
+# And now- we creating the EKS cluster itself                                                                   #
+#################################################################################################################
 resource "aws_eks_cluster" "demo" {
   name     = "${var.name}"
   access_config {
@@ -55,8 +56,8 @@ resource "aws_eks_cluster" "demo" {
   depends_on = [aws_iam_role_policy_attachment.demo-AmazonEKSClusterPolicy]
 }
 #################################################################################################################
-
-# Next, we are going to create IAM role for a single instance group for Kubernetes
+# Next, we are going to create IAM role for a single instance group for Kubernetes                              #
+#################################################################################################################
 resource "aws_iam_role" "nodes" {
   name               = "${var.name}-nodes-group-role"
   assume_role_policy = jsonencode({
@@ -126,46 +127,24 @@ resource "aws_iam_openid_connect_provider" "eks" {
   url             = aws_eks_cluster.demo.identity[0].oidc[0].issuer
 }
 
-############################################################################################
-# ebs-csi-driver                                                                          ##
-############################################################################################
+##########################################################################################################
+# Creating ecr_repository                                                                                #
+##########################################################################################################
 
-data "aws_iam_policy_document" "ebs_csi_driver" {
-  statement {
-    effect = "Allow"
+resource "aws_ecr_repository" "dockerfile" {
+  name                 = "dockerfile"
+  image_tag_mutability = "MUTABLE"
 
-    principals {
-      type        = "Service"
-      identifiers = ["pods.eks.amazonaws.com"]
-    }
-
-    actions = [
-      "sts:AssumeRole",
-      "sts:TagSession"
-    ]
+  image_scanning_configuration {
+    scan_on_push = true
   }
 }
 
-resource "aws_iam_role" "ebs_csi_driver" {
-  name               = "${aws_eks_cluster.demo.name}-ebs-csi-driver"
-  assume_role_policy = data.aws_iam_policy_document.ebs_csi_driver.json
-}
+resource "aws_ecr_repository" "helm" {
+  name                 = "helm"
+  image_tag_mutability = "MUTABLE"
 
-resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-  role       = aws_iam_role.ebs_csi_driver.name
-}
-
-resource "aws_eks_pod_identity_association" "ebs_csi_driver" {
-  cluster_name    = aws_eks_cluster.demo.name
-  namespace       = "kube-system"
-  service_account = "ebs-csi-controller-sa"
-  role_arn        = aws_iam_role.ebs_csi_driver.arn
-}
-
-resource "aws_eks_addon" "ebs_csi_driver" {
-  cluster_name             = aws_eks_cluster.demo.name
-  addon_name               = "aws-ebs-csi-driver"
-  addon_version            = "v1.38.1-eksbuild.1"  
-  service_account_role_arn = aws_iam_role.ebs_csi_driver.arn
+  image_scanning_configuration {
+    scan_on_push = true
+  }
 }
