@@ -38,7 +38,7 @@ resource "aws_eks_cluster" "demo" {
 #################################################################################################################
 # And now- we creating the EKS cluster itself
 resource "aws_eks_cluster" "demo" {
-  name     = "${var.name}-cluster"
+  name     = "${var.name}"
   access_config {
     authentication_mode = "API_AND_CONFIG_MAP"
     bootstrap_cluster_creator_admin_permissions = true
