@@ -1,0 +1,57 @@
+# This is to override the chart name.
+fullnameOverride: "app1"
+
+replicaCount: 1
+
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: 584063358608.dkr.ecr.us-east-1.amazonaws.com/docker/nginx-myapp
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.1.7"
+
+
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service>  
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field>  
+  port: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+#  annotations: 
+#    kubernetes.io/ingress.class: nginx
+#    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: app1.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tas>
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8080
+#    path: "/healthz"
+#    port: 56791
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8080
+
+# Additional volumes on the output Deployment definition.
+volumes:
+ - name: app1
+   configMap:
+     name: app1
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts:
+ - name: app1
+   mountPath: /usr/share/nginx/html/
+
