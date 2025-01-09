@@ -1,6 +1,7 @@
 #!/bin/bash
 sudo apt-get -q update && sudo apt-get -q upgrade
 sudo snap install kubectl --classic;sudo snap install aws-cli --classic;sudo apt-get install cloud-init;sudo snap install helm --classic
+java -jar agent.jar -url http://example.jenkins.com/ -secret de4f5cce994e1d91c93264b9a764fe4c5fa305f462f526088421e6e81582bd5a -name Ubuntu -webSocket -workDir "/home/jenkins"
 # --- install kubectx ---
 sudo apt update
 sudo apt -y install kubectx
