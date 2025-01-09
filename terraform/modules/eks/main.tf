@@ -93,12 +93,20 @@ resource "aws_eks_node_group" "private-nodes" {
   cluster_name      = aws_eks_cluster.demo.name
   node_group_name   = "${var.name}-private-nodes"
   node_role_arn     = aws_iam_role.nodes.arn
-  subnet_ids = var.private-ids
+  subnet_ids        = var.private-ids
   capacity_type     = "ON_DEMAND"
+<<<<<<< HEAD
   instance_types    = ["t3.large"]
   scaling_config {
     desired_size    = var.desired_size
     max_size        = 5
+=======
+  instance_types    = ["c5.large"]
+#  instance_types    = ["t3.micro"]
+  scaling_config {
+    desired_size    = var.desired_size
+    max_size        = var.max_size
+>>>>>>> 498bc6a9c31409c41bd5e7f42989dd73f8bda7e4
     min_size        = var.min_size
   }
   update_config {

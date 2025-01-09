@@ -76,6 +76,9 @@ module "eks2" {
                                      module.network.public_ids[2], 
                                      module.network.public_ids[3]
                                    ]
-  name = "eks2"                                     
+  vpc_id                         = module.vpc.aws_vpc_id
+  name = "eks2"
+  desired_size                   = 2    
+  min_size                       = 1                  
 }
 */
