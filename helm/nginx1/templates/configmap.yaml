@@ -7,6 +7,7 @@ data:
     <h1>Andrew Savelyev</h1>
     <body>
     This is My Nginx Server v.3 (New Edition) with name {{ .name | quote }}
+    Last Release
     </body>
     </html>
 kind: ConfigMap
